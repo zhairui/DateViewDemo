@@ -77,16 +77,24 @@ public class DateV extends View {
 
             if (midnextdistanceDays > 0 && isNextMonth && isCurrentYear) { //下个月可以预约的天数
 
-                if (column == 0 || column == 6) {
+                /*if (column == 0 || column == 6) {
                     mTextPaint.setColor(Color.RED);
                 } else {
-                    mTextPaint.setColor(Color.BLACK);
-                }
+                    mTextPaint.setColor(Color.GRAY);
+                }*/
                 canvas.drawText(dayString, startX, startY, mTextPaint);
 
                 midnextdistanceDays--;
             } else {
-                mTextPaint.setColor(Color.GRAY);
+                if(year<Calendar.getInstance().get(Calendar.YEAR)){ //去年的
+                    mTextPaint.setColor(Color.GRAY);
+                }else if(year==Calendar.getInstance().get(Calendar.YEAR)){
+                    if((month< Calendar.getInstance().get(Calendar.MONTH))||(month== Calendar.getInstance().get(Calendar.MONTH) &&i < (day - 1))) {
+                        mTextPaint.setColor(Color.GRAY);
+                    }
+                }else{
+                    mTextPaint.setColor(Color.BLACK);
+                }
                 canvas.drawText(dayString, startX, startY, mTextPaint);
             }
 
@@ -101,13 +109,12 @@ public class DateV extends View {
                 canvas.drawText("今天", startX - mTextPaint.measureText("今天") / 3, startY + mTextPaint.measureText("今天"), mTextPaint);
             }
             if (middistanceDays < twoweek && i >= day - 1 && isCurrentMonth && isCurrentYear) { //这个月可以预约的天数,但是下个月还有
-                //canvas.drawCircle(startX+mTextPaint.measureText(day+"")/2, startY-mTextPaint.measureText(day+"")/3, mTextPaint.measureText(day+""), mTextPaint);
 
-                if (column == 0 || column == 6) {
+               /* if (column == 0 || column == 6) {
                     mTextPaint.setColor(Color.RED);
                 } else {
-                    mTextPaint.setColor(Color.BLACK);
-                }
+                    mTextPaint.setColor(Color.GRAY);
+                }*/
                 if (i == day - 1) { //表示今天的
                     if (!isClickToday) {
                         canvas.drawText(dayString, startX, startY, mTextPaint);
@@ -123,7 +130,7 @@ public class DateV extends View {
                 if (column == 0 || column == 6) {
                     mTextPaint.setColor(Color.RED);
                 } else {
-                    mTextPaint.setColor(Color.BLACK);
+                    mTextPaint.setColor(Color.GRAY);
                 }
                 if (i == day - 1) { //表示今天的
                     if (!isClickToday) {
@@ -132,10 +139,9 @@ public class DateV extends View {
                 } else {
                     canvas.drawText(dayString, startX, startY, mTextPaint);
                 }
-
                 thismonth++;
             }
-            mTextPaint.setColor(Color.GRAY);
+            mTextPaint.setColor(Color.BLACK);
             if (clickDay == i + 1) {
                 clickX = startX;
                 clickY = startY;
@@ -192,41 +198,41 @@ public class DateV extends View {
                 if (onClickItemListener != null) {
                     if (getClickDay(x, y) != -1) {
                         clickDay = getClickDay(x, y);
+                        if(year>Calendar.getInstance().get(Calendar.YEAR) &&Calendar.getInstance().get(Calendar.MONTH)!=11 ){
+                            onClickItemListener.onClickItem(getClickDay(x, y));
+                            isClickToday = false;
+                            invalidate();
+                            return true;
+                        }
                         if (distanceDays >= twoweek) {//本月
-                            if (year == Calendar.getInstance().get(Calendar.YEAR) && month == Calendar.getInstance().get(Calendar.MONTH)) {
-                                if (clickDay >= day && clickDay <= (twoweek + day - 1)) {
+                            if ((year == Calendar.getInstance().get(Calendar.YEAR) && month == Calendar.getInstance().get(Calendar.MONTH))) {
+                                if (clickDay > (twoweek + day - 1)) {
+                                    onClickItemListener.onClickItem(getClickDay(x, y));
+                                    isClickToday = false;
+                                    invalidate();
+                                    return true;
+                                }
+                            }else if((year == Calendar.getInstance().get(Calendar.YEAR) && month > Calendar.getInstance().get(Calendar.MONTH))
+                                    ||(year > Calendar.getInstance().get(Calendar.YEAR))){
+                                if(clickDay>=1){
                                     onClickItemListener.onClickItem(getClickDay(x, y));
                                     isClickToday = false;
                                     invalidate();
                                     return true;
                                 }
                             }
-                        } else if ( Calendar.getInstance().get(Calendar.MONTH)!= 11) {
-                            if (year == Calendar.getInstance().get(Calendar.YEAR) && month == Calendar.getInstance().get(Calendar.MONTH) + 1) {
-                                if (clickDay >= 1 && clickDay <= (twoweek - distanceDays)) {
-                                    onClickItemListener.onClickItem(getClickDay(x, y));
-                                    invalidate();
-                                    isClickToday = false;
-                                    return true;
-                                }
-                            } else if (year == Calendar.getInstance().get(Calendar.YEAR) && month == Calendar.getInstance().get(Calendar.MONTH)) {
-                                if (clickDay >= day && clickDay <= currentMonthDays) {
+                        }else if(Calendar.getInstance().get(Calendar.MONTH)!= 11){
+                            if ((year == Calendar.getInstance().get(Calendar.YEAR) && month == Calendar.getInstance().get(Calendar.MONTH) + 1)) {
+                                if ( clickDay > (twoweek - distanceDays)) {
                                     onClickItemListener.onClickItem(getClickDay(x, y));
                                     invalidate();
                                     isClickToday = false;
                                     return true;
                                 }
                             }
-                        } else {
+                        }else{
                             if (year == Calendar.getInstance().get(Calendar.YEAR) + 1 && month == 0) {
-                                if (clickDay >= 1 && clickDay <= (twoweek - distanceDays)) {
-                                    onClickItemListener.onClickItem(getClickDay(x, y));
-                                    invalidate();
-                                    isClickToday = false;
-                                    return true;
-                                }
-                            } else if (year == Calendar.getInstance().get(Calendar.YEAR) && month == Calendar.getInstance().get(Calendar.MONTH)) {
-                                if (clickDay >= day && clickDay <= currentMonthDays) { //设置点击事件在范围内
+                                if ( clickDay > (twoweek - distanceDays)) {
                                     onClickItemListener.onClickItem(getClickDay(x, y));
                                     invalidate();
                                     isClickToday = false;
@@ -272,7 +278,7 @@ public class DateV extends View {
         if (day > currentMonthDays || day == 0) {
             day = -1;
         }
-        Log.i("index", indexi + "====" + indexj);
+        Log.i("index", indexi + "====" + indexj+"==="+day);
 
         return day;
     }
